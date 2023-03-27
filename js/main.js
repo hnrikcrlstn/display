@@ -98,7 +98,12 @@ function displayTrainInfo(data) {
                 if (trainTime - Date.now() > 0) {
                     $('.train-' + accepted + ' .trainNo').text(data[i].ProductInformation[1]);
                     $('.train-' + accepted + ' .trainRail').text(data[i].TrackAtLocation);
-                    $('.train-' + accepted + ' .trainDep').text(trainTime.getHours() + ':' + trainTime.getMinutes());
+                    if (trainTime.getMinutes() < 10) {
+                        $('.train-' + accepted + ' .trainDep').text(trainTime.getHours() + ':0' + trainTime.getMinutes());
+                    } else {
+                        $('.train-' + accepted + ' .trainDep').text(trainTime.getHours() + ':' + trainTime.getMinutes());
+                    }
+                    
                     $('.train-' + accepted + ' .trainTime').text(Math.round((trainTime - Date.now()) / 1000 / 60));
 
                     accepted++;
