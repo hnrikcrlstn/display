@@ -7,8 +7,8 @@ $('#testBtn').on('click' , function() {
     
     console.log('Button clicked');
     
-    let apiUrl = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
-    let apiKey = '50aff4a70a3749b1b0921745f8d2086d';
+    var apiUrl = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
+    var apiKey = '50aff4a70a3749b1b0921745f8d2086d';
     let xmlRequest = "<REQUEST>" +
                         "<LOGIN authenticationkey='"+ apiKey + "'/>" +
                         "<QUERY objecttype='TrainAnnouncement' schemaversion='1.3' orderby='AdvertisedTimeAtLocation' limit='15'>" +
@@ -33,6 +33,7 @@ $('#testBtn').on('click' , function() {
                             "<INCLUDE>ScheduledDepartureDateTime</INCLUDE>" +
                             "<INCLUDE>AdvertisedTimeAtLocation</INCLUDE>" +
                             "<INCLUDE>ToLocation</INCLUDE>" +
+                            "<INCLUDE>LocationSignature</INCLUDE>" +
                             "<INCLUDE>TrackAtLocation</INCLUDE>" +
                             "<INCLUDE>PlannedEstimatedTimeAtLocation</INCLUDE>" +
                             "<INCLUDE>OtherInformation</INCLUDE>" +
@@ -55,6 +56,10 @@ $('#testBtn').on('click' , function() {
 
 }).trigger('click');
 
+function getStationNames(id) {
+    console.log(data);
+}
+
 function displayTrainInfo(data) {
     /* OtherInformations to ignore by error handler */
     const unimportantMessages = [
@@ -66,6 +71,9 @@ function displayTrainInfo(data) {
         'Anslutning till linje 48 mot Gnesta i Södertälje hamn', 
         'Anslutning till linje 48 mot Gnesta i Södertälje hamn.'];
 
+    /* Array with station id for northen stations, to deduce travel orientation */
+    const northenStations = ['U', 'Mr', 'Arnc', 'Kn', 'Rs'];
+
     console.log(data);
    /*   Gather the next 10 departures
         Display the upcoming 4 departures
@@ -76,6 +84,7 @@ function displayTrainInfo(data) {
     let accepted = 0;
 
     for (let i = 0; i < data.length; i++) {
+        console.log(data[i].ToLocation[0].LocationName);
         if (data[i].OtherInformation != null) {
             if (data[i].OtherInformation.length == 1 && !unimportantMessages.includes(data[i].OtherInformation[0])) {
                 console.log('Error level 1, ' + data[i].OtherInformation[0]);
@@ -103,15 +112,17 @@ function displayTrainInfo(data) {
                     } else {
                         $('.train-' + accepted + ' .trainDep').text(trainTime.getHours() + ':' + trainTime.getMinutes());
                     }
-                    
                     $('.train-' + accepted + ' .trainTime').text(Math.round((trainTime - Date.now()) / 1000 / 60));
-
+                    if (northenStations.includes(data[i].ToLocation[0].LocationName)) {
+                        $('.train-' + accepted + ' .trainDirection').text('Norr');
+                    } else {
+                        $('.train-' + accepted + ' .trainDirection').text('Söder');
+                    }
                     accepted++;
                 }
-            
         }
-   
     }
+    console.log(accepted);
 }
 
 function displayError(location, message) {
