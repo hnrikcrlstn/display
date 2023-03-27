@@ -1,0 +1,73 @@
+@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;1,200&display=swap');
+
+body {
+    background: black;
+    color: white;
+    font-family: 'Ubuntu', sans-serif;
+}
+
+.main-container {
+    margin: 1em;
+}
+
+.train {
+    display: flex;
+    width: 100%;
+    justify-content: space-between;
+}
+
+.train .train-vasby {
+    border: 2px solid white;
+    min-height: 250px;
+    background: url('/img/train.png') rgba(0, 0, 0, 0.85);
+    background-size: 50%;
+    background-blend-mode: darken;
+    background-repeat: no-repeat;
+    background-position: center center;;
+}
+
+.train-seg {
+    flex-direction: column;
+}
+
+.row, .row>* {
+    display: flex;
+    flex-wrap: nowrap;
+}
+
+.row {
+    width: 100%;
+    flex-wrap: nowrap;
+}
+
+.seg-4 {
+    width: 25%;
+}
+
+.seg-3 {
+    width: 30%;
+}
+
+.seg-2 {
+    width: 50%;
+}
+.row .train .train-from-header {
+    margin-bottom: 0.4em;
+}
+.row h1, .row h2, .row h3 {
+    margin: 0;
+}
+
+.currentError {
+    display: none;
+}
+
+.button {
+    display: inline-block;
+    padding: 0.5em 0.75em;
+    background: orange;
+    font-weight: bold;
+    border-radius: 5px;
+    color:rgb(250, 241, 224);
+    user-select: none;
+}
