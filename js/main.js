@@ -60,6 +60,11 @@ function getStationNames(id) {
 }
 
 function displayTrainInfo(data) {
+
+    /* Reset old data */
+    $('.trainDep').removeClass('delay');
+    $('.trainDepNew').hide();
+
     console.log('Function started');
     /* OtherInformations to ignore by error handler */
     const unimportantMessages = [
