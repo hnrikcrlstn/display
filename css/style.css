@@ -13,11 +13,10 @@ body {
 .train {
     display: flex;
     width: 100%;
-    justify-content: space-between;
+
 }
 
 .train .train-vasby {
-    border: 2px solid white;
     min-height: 250px;
     background: url('/img/train.png') rgba(0, 0, 0, 0.85);
     background-size: 50%;
@@ -70,4 +69,32 @@ body {
     border-radius: 5px;
     color:rgb(250, 241, 224);
     user-select: none;
+}
+
+.canceled {
+    background: yellow;
+}
+
+.delay {
+    text-decoration:line-through;
+    opacity: 0.6;
+}
+
+.trainDepNew {
+    display: none;
+    animation: notice-me;
+    animation-duration: 5000ms;
+    animation-timing-function: ease-in-out;
+    animation-iteration-count: infinite;
+    animation-fill-mode: forwards;
+    border-radius: 0.25em;
+    padding: 0.25em;
+}
+
+@keyframes notice-me {
+    
+    30% {
+        background: white;
+        color: black;
+    }
 }
