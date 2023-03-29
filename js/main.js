@@ -141,10 +141,9 @@ function displayTrainInfo(data) {
                 $(trainContain + ' .trainNo').text(data[i].ProductInformation[1].Description);
                 $(trainContain + ' .trainRail').text(data[i].TrackAtLocation);
                 $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
-                $(trainContain + ' .trainTime').text((trainTimeEst > 0) ? Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) :  Math.ceil((trainTime - Date.now()) / 1000 / 60));
+                $(trainContain + ' .trainTime').text((trainTimeEst > 0) ? Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) + ' min':  Math.ceil((trainTime - Date.now()) / 1000 / 60) + ' min');
 
                 /* If time as been changed, notify */
-                
                 if (trainTimeEst &&  (Math.round(trainTimeEst - trainTime) / 500 / 60) > 1) {
                     $(trainContain + ' .trainDep').addClass('delay');
                     $(trainContain + ' .trainDepNew').text(addZero(trainTimeEst.getHours()) + ':' + addZero(trainTimeEst.getMinutes())).show();

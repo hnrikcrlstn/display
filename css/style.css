@@ -18,12 +18,6 @@ body {
 
 .train .train-vasby {
     min-height: 250px;
-    background: url('/img/train.png') rgba(0, 0, 0, 0.85);
-    background-size: 50%;
-    background-blend-mode: darken;
-    background-repeat: no-repeat;
-    background-position: center center;
-
     display: flex;
     flex-wrap:wrap;
     justify-content: space-between;    
@@ -61,6 +55,7 @@ h3.train-direction-header {
 .seg-2 {
     width: 50%;
 }
+
 .row .train .train-from-header {
     margin-bottom: 0.4em;
 }
@@ -71,10 +66,11 @@ h3.train-direction-header {
 .train .train-vasby .train-seg {
     display: grid;
     grid-template-columns: 50% 50%;
-    grid-template-rows: repeat(2, 5rem 2rem);
-    max-height: 250px;
+    grid-template-rows: 3rem 2rem 6rem 2rem;
     align-items: end;
     justify-items: center;
+    margin: 0 1rem;
+    border: 2px solid white;
 }
 .train-data {
     font-size: clamp(1rem, 2rem, 2.5rem); 
@@ -112,19 +108,34 @@ h3.train-direction-header {
 
 .trainDepNew {
     display: none;
+    position: relative;
+}
+.trainDepNew:before {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    height: 100%;
+    width: 100%;
+    content: '';
     animation: notice-me;
     animation-duration: 5000ms;
     animation-timing-function: ease-in-out;
     animation-iteration-count: infinite;
     animation-fill-mode: forwards;
     border-radius: 0.25em;
-    padding: 0.125em;
+    padding: 5px;
+    background: white;
+    mix-blend-mode: difference;
+
 }
 
 @keyframes notice-me {
     
     30% {
-        background: white;
-        color: black;
+        background: black;
+    }
+    
+    80% {
+        background:white;
     }
 }
