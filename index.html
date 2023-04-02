@@ -12,72 +12,79 @@
 <body>
     <div class="main-container">
         <h1 class="train-header">Kommande tåg</h1>
-        <div class="row">
+        <div class="train-container">
             <div class="train">
-                
-                <div class="seg-2 train-vasby">
-
+                <div class="train-vasby">
                     <div class="row">
-                        <div class="seg-2 train-seg train-s-0">
-                            <div class="trainNo train-data"></div>
-                            <div class="trainRail train-data"></div>
-                            <div class="trainNoLabel train-label">Linje</div>
-                            <div class="trainRailLabel train-label">Spår</div>
+                        <div class="train-seg train-s-0">
                             <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
-                            <div class="trainTime train-data"></div>
                             <div class="trainDepLabel train-label">Avgång</div>
+                            <div class="trainTime train-data"></div>
                             <div class="trainTimeLabel train-label">Tid kvar</div>
                         </div>
-                        <div class="seg-2 train-seg train-s-1">
-                            <div class="trainNo train-data"></div>
-                            <div class="trainRail train-data"></div>
-                            <div class="trainNoLabel train-label">Linje</div>
-                            <div class="trainRailLabel train-label">Spår</div>
+                        <div class="train-seg train-s-1">
                             <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
-                            <div class="trainTime train-data"></div>
                             <div class="trainDepLabel train-label">Avgång</div>
+                            <div class="trainTime train-data"></div>
                             <div class="trainTimeLabel train-label">Tid kvar</div>
                         </div>
                     </div>
-                    <h3 class="train-direction-header">Södergående tåg</h3>
-                </div>                
-                <div class="seg-2 train-vasby">
-                    
-                    <div class="row">
-                        <div class="seg-2 train-seg train-n-0">
-                            <div class="trainNo train-data"></div>
-                            <div class="trainRail train-data"></div>
-                            <div class="trainNoLabel train-label">Linje</div>
-                            <div class="trainRailLabel train-label">Spår</div>
-                            <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
-                            <div class="trainTime train-data"></div>
-                            <div class="trainDepLabel train-label">Avgång</div>
-                            <div class="trainTimeLabel train-label">Tid kvar</div>
-                        </div>
-                        <div class="seg-2 train-seg train-n-1">
-                            <div class="trainNo train-data"></div>
-                            <div class="trainRail train-data"></div>
-                            <div class="trainNoLabel train-label">Linje</div>
-                            <div class="trainRailLabel train-label">Spår</div>
-                            <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
-                            <div class="trainTime train-data"></div>
-                            <div class="trainDepLabel train-label">Avgång</div>
-                            <div class="trainTimeLabel train-label">Tid kvar</div>
-                        </div>
-                    </div>
-                    <h3 class="train-direction-header">Norrgående tåg</h3>
                 </div>
-                
-  <!--              <div class="seg-3">
-                    <h3 class="train-from-header currentError">Pågående fel: <span class="currentTrainErrors"></span></h3>
+
+                <div class="train-vasby">
                     <div class="row">
-                        <span class="currentTrainErrorInfo"></span>
+                        <div class="train-seg train-s-2">
+                            <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
+                            <div class="trainDepLabel train-label">Avgång</div>
+                            <div class="trainTime train-data"></div>
+                            <div class="trainTimeLabel train-label">Tid kvar</div>
+                        </div>
+                        <div class="train-seg train-s-3">
+                            <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
+                            <div class="trainDepLabel train-label">Avgång</div>
+                            <div class="trainTime train-data"></div>
+                            <div class="trainTimeLabel train-label">Tid kvar</div>
+                        </div>
                     </div>
-                </div> -->
+                </div>
+                <div class="train-vasby">
+                    <div class="row">
+                        <div class="train-seg train-n-0">
+                            <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
+                            <div class="trainDepLabel train-label">Avgång</div>
+                            <div class="trainTime train-data"></div>
+                            <div class="trainTimeLabel train-label">Tid kvar</div>
+                        </div>
+                        <div class="train-seg train-n-1">
+                            <div class="TrainDepCont train-data"><span class="trainDep"></span><br><span class="trainDepNew"></span></div>
+                            <div class="trainDepLabel train-label">Avgång</div>
+                            <div class="trainTime train-data"></div>
+                            <div class="trainTimeLabel train-label">Tid kvar</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="train-error">
+                    <div class="row">
+                        <div class="train-error-output">
+                            
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="train-label-row">
+                <div class="train-label-south">
+                    <h3>Södergående tåg</h2>
+                </div>
+                <div class="train-label-north">
+                    <h3>Norrgående tåg</h3>
+                </div>
+                <div class="train-label-error">
+                    <h3></h3>
+                </div>
             </div>
         </div>
     </div>
     <span class="button" id="testBtn">Test</span>
-    <div class="output"></div>
 </body>
 </html>

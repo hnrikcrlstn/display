@@ -61,6 +61,8 @@ function getStationNames(id) {
 
 function displayTrainInfo(data) {
 
+    let timeNow = Date.now();
+
     /* Reset old data */
     $('.trainDep').removeClass('delay');
     $('.trainDepNew').hide();
@@ -70,6 +72,7 @@ function displayTrainInfo(data) {
     const unimportantMessages = [
         'Resa förbi Arlanda C kräver både UL- och SL- biljett.', 
         'Anslutning till linje 48 mot Gnesta i Södertälje hamn.',
+        'Anslutning till linje 48 mot Järna i Södertälje hamn.',
         'Stannar ej vid Trångsund, Skogås, Vega, Jordbro.',
         'Stannar ej vid Arlanda C.',
         'Stannar även vid Rosersberg.', 
@@ -97,24 +100,26 @@ function displayTrainInfo(data) {
     for (let i = 0; i < data.length; i++) {
         /* Checks for cancellations and delays, save train index for future handling */
         /* TODO: Deviation innehåller inställt */
-        if (data[i].OtherInformation != null) {
-            if (data[i].OtherInformation.length == 1 && !unimportantMessages.includes(data[i].OtherInformation[0].Description)) {
-                console.log('Error level 1, ' + data[i].OtherInformation[0]);
+        if (data[i].Deviation != null) {
+            if (data[i].Deviation.length == 1 && !unimportantMessages.includes(data[i].Deviation[0].Description)) {
+                console.log('Error level 1, ' + data[i].Deviation[0]);
                 errorArray.push(i);
-            } else if (data[i].OtherInformation.length > 1) {
-                for (let n = 0; n < data[i].OtherInformation.length; n++) {
-                    if (!unimportantMessages.includes(data[i].OtherInformation[n].Description)) {
-                        console.log('Error level 2, ' + data[i].OtherInformation[n].Description);
+            } else if (data[i].Deviation.length > 1) {
+                for (let n = 0; n < data[i].Deviation.length; n++) {
+                    if (!unimportantMessages.includes(data[i].Deviation[n].Description)) {
+                        console.log('Error level 2, ' + data[i].Deviation[n].Description);
                         errorArray.push(i);
-                        n = data[i].OtherInformation.length + 1;
+                        n = data[i].Deviation.length + 1;
                     }
                 }
             }
-        }  
+        }
+
+
 
         let direction = northenStations.includes(data[i].ToLocation[0].LocationName);
 
-        if ((direction && north < 2) || (!direction && south < 2)) {
+        if ((data[i].ToLocation[0].LocationName == 'U' && north < 2) || (!direction && south < 4)) {
             let trainTime = new Date(data[i].AdvertisedTimeAtLocation);
             let trainTimeEst;
             /* Check for new est. time */
@@ -143,10 +148,17 @@ function displayTrainInfo(data) {
                 if (data.Canceled) {
                     $(trainContain).addClass('canceled');
                 }
-                $(trainContain + ' .trainNo').text(data[i].ProductInformation[1].Description);
-                $(trainContain + ' .trainRail').text(data[i].TrackAtLocation);
+
+                let trainTimePrint;
+                if (trainTimeEst > 0) {
+                    trainTimePrint = (Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1) == 0 ? 'Nu' : Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
+                } else {
+                    trainTimePrint = (Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1) == 0 ? 'Nu' : Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
+                }
+/*                 $(trainContain + ' .trainNo').text(data[i].ProductInformation[1].Description);
+                $(trainContain + ' .trainRail').text(data[i].TrackAtLocation); */
                 $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
-                $(trainContain + ' .trainTime').text((trainTimeEst > 0) ? Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) + ' min':  Math.ceil((trainTime - Date.now()) / 1000 / 60) + ' min');
+                $(trainContain + ' .trainTime').html((trainTimePrint));
 
                 /* If time as been changed, notify */
                 if (trainTimeEst &&  (Math.round(trainTimeEst - trainTime) / 500 / 60) > 1) {
@@ -164,8 +176,15 @@ function displayTrainInfo(data) {
             }
         }
     }
+    
 console.log('Script finished');
-console.log('Errors: ' + errorArray.length);
+console.log('Errors: ' + errorArray.length + ', ' + errorArray[0]);
+
+if (errorArray.length > 0) {
+    for (let i = 0; i < errorArray.length; i++) {
+        console.log(i);
+    }
+}
 }
 
 function displayError(location, message) {

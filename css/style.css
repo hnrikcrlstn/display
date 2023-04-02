@@ -11,8 +11,9 @@ body {
 }
 
 .train {
-    display: flex;
+    display: grid;
     width: 100%;
+    grid-template-columns: repeat(4, 1fr);
 
 }
 
@@ -44,9 +45,9 @@ h3.train-direction-header {
     flex-wrap: nowrap;
 }
 
-.seg-4 {
+/* .seg-4 {
     width: 25%;
-}
+} */
 
 .seg-3 {
     width: 30%;
@@ -65,8 +66,8 @@ h3.train-direction-header {
 
 .train .train-vasby .train-seg {
     display: grid;
-    grid-template-columns: 50% 50%;
-    grid-template-rows: 3rem 1.5rem 6rem 1.5rem;
+    grid-template-columns: 100%;
+    grid-template-rows: 6rem 1.5rem 4rem 1.5rem;
     align-items: end;
     justify-items: center;
     margin: 0 1rem;
@@ -84,6 +85,16 @@ h3.train-direction-header {
     display: none;
 }
 
+.train-vasby .row {
+    flex-direction: column;
+}
+
+.train-label-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    text-align: center;
+}
+
 .button {
     display: inline-block;
     padding: 0.5em 0.75em;
@@ -98,12 +109,21 @@ h3.train-direction-header {
     background: yellow;
 }
 
+.train-container {
+    display: grid;
+
+}
+
 .delay {
     text-decoration:line-through;
     opacity: 0.6;
     font-size: 75%;
     margin-bottom: 0.25em;
     display: inline-block;
+}
+
+.train-time-unit {
+    font-size: 75%;
 }
 
 .trainDepNew {
