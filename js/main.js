@@ -7,10 +7,10 @@ $('#testBtn').on('click' , function() {
     
     console.log('Button clicked');
     
-    var apiUrl = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
-    var apiKey = '50aff4a70a3749b1b0921745f8d2086d';
+    var trainApiUrl = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
+    var trainApiKey = '50aff4a70a3749b1b0921745f8d2086d';
     let xmlRequest = "<REQUEST>" +
-                        "<LOGIN authenticationkey='"+ apiKey + "'/>" +
+                        "<LOGIN authenticationkey='"+ trainApiKey + "'/>" +
                         "<QUERY objecttype='TrainAnnouncement' schemaversion='1.8' orderby='AdvertisedTimeAtLocation' limit='15'>" +
                             "<FILTER>" +
                                 "<AND>" +
@@ -41,7 +41,7 @@ $('#testBtn').on('click' , function() {
 
     $.ajax({
         type: "POST",
-        url: apiUrl,
+        url: trainApiUrl,
         contentType: "text/xml",
         dataType: "json",
         data: xmlRequest,
@@ -49,25 +49,26 @@ $('#testBtn').on('click' , function() {
             if (response == null) return;
             displayTrainInfo($(response.RESPONSE.RESULT[0].TrainAnnouncement));
         }
-    })
-  console.log('POST Done');
+    });
+
+    console.log('POST Done'); /* *** */
 
 }).trigger('click');
 
-function getStationNames(id) {
-    /* TODO: Use function to return station names from the errorArray in displayTrainInfo() */
-    console.log(data);
-}
-
 function displayTrainInfo(data) {
+    /*  Gather the next 15 departures
+     *  Display the upcoming 4 departures
+     *  Check for upcoming cancellations */
+    console.log('displayTrainInfo started'); /* *** */
 
-    let timeNow = Date.now();
+    let timeNow = Date.now(); /* Still used? */
 
     /* Reset old data */
     $('.trainDep').removeClass('delay');
     $('.trainDepNew').hide();
+    $('.train-error').addClass('train-error-no-error');
+    $('.train-error-output').html('');
 
-    console.log('Function started');
     /* OtherInformations to ignore by error handler */
     const unimportantMessages = [
         'Resa förbi Arlanda C kräver både UL- och SL- biljett.', 
@@ -75,6 +76,8 @@ function displayTrainInfo(data) {
         'Anslutning till linje 48 mot Järna i Södertälje hamn.',
         'Stannar ej vid Trångsund, Skogås, Vega, Jordbro.',
         'Stannar ej vid Arlanda C.',
+        'Kort tåg',
+        'Spårändrat',
         'Stannar även vid Rosersberg.', 
         'Resa förbi Märsta kräver både UL- och SL- biljett.', 
         'Tåget går endast till Södertälje hamn.',
@@ -82,12 +85,8 @@ function displayTrainInfo(data) {
 
     /* Array with station id for northen stations, to deduce travel orientation */
     const northenStations = ['U', 'Mr', 'Arnc', 'Kn', 'Rs'];
-    /* Check if train is heading north */
     
-    console.log(data);
-   /*   Gather the next 15 departures
-        Display the upcoming 4 departures
-        Check for upcoming cancellations */
+    console.log(data); /* *** */
     
     /* If there is a cancelled departure, store the index in a new array for future handling */
     let errorArray = [];
@@ -99,15 +98,14 @@ function displayTrainInfo(data) {
     /* Main loop of function, handle the stored train data one at a time */
     for (let i = 0; i < data.length; i++) {
         /* Checks for cancellations and delays, save train index for future handling */
-        /* TODO: Deviation innehåller inställt */
         if (data[i].Deviation != null) {
             if (data[i].Deviation.length == 1 && !unimportantMessages.includes(data[i].Deviation[0].Description)) {
-                console.log('Error level 1, ' + data[i].Deviation[0]);
+                console.log('Error level 1, ' + data[i].Deviation[0]); /* *** */
                 errorArray.push(i);
             } else if (data[i].Deviation.length > 1) {
                 for (let n = 0; n < data[i].Deviation.length; n++) {
                     if (!unimportantMessages.includes(data[i].Deviation[n].Description)) {
-                        console.log('Error level 2, ' + data[i].Deviation[n].Description);
+                        console.log('Error level 2, ' + data[i].Deviation[n].Description); /* *** */
                         errorArray.push(i);
                         n = data[i].Deviation.length + 1;
                     }
@@ -115,13 +113,12 @@ function displayTrainInfo(data) {
             }
         }
 
-
-
         let direction = northenStations.includes(data[i].ToLocation[0].LocationName);
 
         if ((data[i].ToLocation[0].LocationName == 'U' && north < 2) || (!direction && south < 4)) {
             let trainTime = new Date(data[i].AdvertisedTimeAtLocation);
             let trainTimeEst;
+
             /* Check for new est. time */
             if (data[i].EstimatedTimeAtLocation) {
                 trainTimeEst = new Date(data[i].EstimatedTimeAtLocation);
@@ -145,7 +142,7 @@ function displayTrainInfo(data) {
             }
 
             if (relevant) {
-                if (data.Canceled) {
+                if (data[i].Canceled) {
                     $(trainContain).addClass('canceled');
                 }
 
@@ -155,8 +152,7 @@ function displayTrainInfo(data) {
                 } else {
                     trainTimePrint = (Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1) == 0 ? 'Nu' : Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
                 }
-/*                 $(trainContain + ' .trainNo').text(data[i].ProductInformation[1].Description);
-                $(trainContain + ' .trainRail').text(data[i].TrackAtLocation); */
+
                 $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
                 $(trainContain + ' .trainTime').html((trainTimePrint));
 
@@ -165,7 +161,6 @@ function displayTrainInfo(data) {
                     $(trainContain + ' .trainDep').addClass('delay');
                     $(trainContain + ' .trainDepNew').text(addZero(trainTimeEst.getHours()) + ':' + addZero(trainTimeEst.getMinutes())).show();
                 }
-                /* TODO: Deviation innehåller bla kort tåg */
 
                 /* Keep track of how many north- and southbound trains has been presented */
                 if (direction) {
@@ -177,18 +172,20 @@ function displayTrainInfo(data) {
         }
     }
     
-console.log('Script finished');
-console.log('Errors: ' + errorArray.length + ', ' + errorArray[0]);
+    console.log('Script finished'); /* *** */
 
-if (errorArray.length > 0) {
-    for (let i = 0; i < errorArray.length; i++) {
-        console.log(i);
+    if (errorArray.length > 0) {
+        $('.train-label-error, .train-error-no-error').removeClass('train-error-no-error');
+        for (let i = 0; i < errorArray.length; i++) {
+            displayError(data[errorArray[i]].ProductInformation[1].Description, data[errorArray[i]].Deviation[0].Description, data[errorArray[i]].AdvertisedTimeAtLocation, northenStations.includes(data[errorArray[i]].ToLocation[0].LocationName));
+        }
     }
 }
-}
 
-function displayError(location, message) {
-    alert('Error at: ' + location + ", " + message);
+function displayError(trainData, message, time, north) {
+    let tempTime = new Date(time);
+    let formatedTime = addZero(tempTime.getHours()) + ':' + addZero(tempTime.getMinutes());
+    $('.train-error-output').append('<li>' + formatedTime + ', linje ' + trainData + ' ' + (north ? 'norr' : 'söder') + ': ' + message + '</li>');
 }
 
 function addZero(i) {

@@ -11,8 +11,8 @@
 </head>
 <body>
     <div class="main-container">
-        <h1 class="train-header">Kommande tåg</h1>
         <div class="train-container">
+            <h1 class="train-header">Kommande tåg</h1>
             <div class="train">
                 <div class="train-vasby">
                     <div class="row">
@@ -64,27 +64,36 @@
                     </div>
                 </div>
                 <div class="train-error">
-                    <div class="row">
-                        <div class="train-error-output">
-                            
-                        </div>
+                    <div class="train-error-output">
                     </div>
                 </div>
             </div>
 
             <div class="train-label-row">
-                <div class="train-label-south">
-                    <h3>Södergående tåg</h2>
+                <div class="train-label-south train-label">
+                    <h3 class="train-label">Södergående tåg</h3>
                 </div>
                 <div class="train-label-north">
-                    <h3>Norrgående tåg</h3>
+                    <h3 class="train-label">Mot Uppsala</h3>
                 </div>
-                <div class="train-label-error">
-                    <h3></h3>
+                <div class="train-label-error train-error-no-error">
+                    <h3 class="train-label">Pågående fel</h3>
                 </div>
             </div>
         </div>
+        <div class="weather-row">
+            <div class="seg-4 weather-col weather-1"></div>
+            <div class="seg-4 weather-col weather-2"></div>
+            <div class="seg-4 weather-col weather-3"></div>
+            <div class="seg-4 weather-col weather-4"></div>
+        </div>
+        <div class="joke-row">
+            <div class="joke-setup"></div>
+            <div class="joke-punch-line"></div>
+        </div>
+        <div class="button-row">
+            <span class="button" id="testBtn">Test</span>
+        </div>
     </div>
-    <span class="button" id="testBtn">Test</span>
 </body>
 </html>
