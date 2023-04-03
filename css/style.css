@@ -11,7 +11,7 @@ body {
     height: calc(100vh - 2em);
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 2fr repeat(2, 1fr) 2em;
+    grid-template-rows: 4fr 2fr 1fr 2em;
 }
 
 .train {

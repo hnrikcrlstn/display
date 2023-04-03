@@ -1,12 +1,18 @@
 $(document).ready(function() {
     $.support.cors = true;
     console.log('Script started');
+    fetchTrain();
+    fetchJoke();
 })
 
 $('#testBtn').on('click' , function() {
-    
-    console.log('Button clicked');
-    
+    fetchTrain();
+    fetchJoke();
+    console.log('Button pressed');
+});
+
+
+function fetchTrain() {
     var trainApiUrl = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
     var trainApiKey = '50aff4a70a3749b1b0921745f8d2086d';
     let xmlRequest = "<REQUEST>" +
@@ -38,7 +44,6 @@ $('#testBtn').on('click' , function() {
                             "<INCLUDE>Deviation</INCLUDE>" +
                         "</QUERY>" +
                     "</REQUEST>";
-
     $.ajax({
         type: "POST",
         url: trainApiUrl,
@@ -50,10 +55,44 @@ $('#testBtn').on('click' , function() {
             displayTrainInfo($(response.RESPONSE.RESULT[0].TrainAnnouncement));
         }
     });
+}
+
+function fetchJoke() {
+    var baseURL = "https://v2.jokeapi.dev";
+    var categories = ["Programming", "Misc", "Pun"];
+    var params = [
+        "blacklistFlags=nsfw,racist",
+        "idRange=0-100"
+    ];
+
+    var xhr = new XMLHttpRequest();
+    xhr.open("GET", baseURL + "/joke/" + categories.join(",") + "?" + params.join("&"));
+
+    xhr.onreadystatechange = function() {
+        if(xhr.readyState == 4 && xhr.status < 300) // readyState 4 means request has finished + we only want to parse the joke if the request was successful (status code lower than 300)
+        {
+            var randomJoke = JSON.parse(xhr.responseText);
+
+            if(randomJoke.type == "single")
+            {
+                displayJoke(true, randomJoke.joke, null);
+            }
+            else
+            {
+                displayJoke(false, randomJoke.setup, randomJoke.delivery);
+            }
+        }
+        else if(xhr.readyState == 4)
+        {
+            displayJoke(true, "Error while requesting joke.\n\nStatus code: " + xhr.status + "\nServer response: " + xhr.responseText, null);
+        }
+    };
+
+    xhr.send();
 
     console.log('POST Done'); /* *** */
 
-}).trigger('click');
+}
 
 function displayTrainInfo(data) {
     /*  Gather the next 15 departures
@@ -68,8 +107,9 @@ function displayTrainInfo(data) {
     $('.trainDepNew').hide();
     $('.train-error').addClass('train-error-no-error');
     $('.train-error-output').html('');
+    $('.trainTimeLabel').text('Tid kvar');
 
-    /* OtherInformations to ignore by error handler */
+    /* OtherInformations and Deviations to ignore by error handler */
     const unimportantMessages = [
         'Resa förbi Arlanda C kräver både UL- och SL- biljett.', 
         'Anslutning till linje 48 mot Gnesta i Södertälje hamn.',
@@ -88,7 +128,7 @@ function displayTrainInfo(data) {
     
     console.log(data); /* *** */
     
-    /* If there is a cancelled departure, store the index in a new array for future handling */
+    /* If there is a canceled departure, store the index in a new array for future handling */
     let errorArray = [];
     
     /* Save number of north and south heading departures */
@@ -147,10 +187,12 @@ function displayTrainInfo(data) {
                 }
 
                 let trainTimePrint;
-                if (trainTimeEst > 0) {
-                    trainTimePrint = (Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1) == 0 ? 'Nu' : Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
+                if ((trainTimeEst > 0 && (Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1) == 0) || (trainTimeEst <= 0 && (Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1) == 0  )) {
+                    console.log('Nu');
+                    trainTimePrint = 'Avgår nu';
+                    $(trainContain + ' .trainTimeLabel').text('');
                 } else {
-                    trainTimePrint = (Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1) == 0 ? 'Nu' : Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
+                    trainTimePrint = Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
                 }
 
                 $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
@@ -188,7 +230,18 @@ function displayError(trainData, message, time, north) {
     $('.train-error-output').append('<li>' + formatedTime + ', linje ' + trainData + ' ' + (north ? 'norr' : 'söder') + ': ' + message + '</li>');
 }
 
+function displayJoke(single, joke, punch) {
+    if (single) {
+        $('.joke-setup').hide();
+        $('.joke-punch-line').text(joke);
+    } else {
+        $('.joke-setup').show().text(joke);
+        $('.joke-punch-line').text(punch);
+    }
+}
+
 function addZero(i) {
+    /* Used to format time in XX:YY-format */
     if (i < 10) {
         i = '0' + i;
     }
