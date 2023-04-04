@@ -1,9 +1,9 @@
-@import url('https://fonts.googleapis.com/css2?family=Source+Sans+Pro:ital,wght@0,200;1,200&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,300;0,400;0,700;1,300;1,400;1,700&display=swap');
 
 body {
     background: black;
     color: white;
-    font-family: 'Ubuntu', sans-serif;
+    font-family: 'Nunito', sans-serif;
 }
 
 .main-container {
@@ -11,7 +11,8 @@ body {
     height: calc(100vh - 2em);
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 4fr 2fr 1fr 2em;
+    grid-template-rows: 2fr 1fr 5em;
+    grid-gap: 2em;
 }
 
 .train {
@@ -81,6 +82,15 @@ h3.train-direction-header {
     font-size: clamp(1rem, 2rem, 2.5rem); 
     text-align: center;
 }
+
+.canceled .train-data {
+    text-decoration: line-through;
+}
+
+.canceled .train-time-unit {
+    display: none;
+}
+
 .train-label {
     text-transform: uppercase;
     
@@ -127,16 +137,14 @@ h3.train-direction-header {
     text-transform: uppercase;
     font-size: 90%;
     letter-spacing: 0.5px;
-}
-
-.canceled {
-    background: yellow;
-}
+} 
 
 .train-container {
     display: grid;
-
+    grid-template-rows: max-content 4rem;
 }
+
+
 
 .delay {
     text-decoration:line-through;
@@ -186,4 +194,21 @@ h3.train-direction-header {
 
 .weather-row {
     display: flex;
+}
+
+.weather-col {
+    display: grid;
+    justify-content: center;
+    grid-template-rows: repeat(4, 1fr) 2rem;
+    height: 100%;
+    border: 1px solid orange;
+}
+
+.weather-col .weather-label {
+    font-size: 1.5rem;
+}
+
+.weather-col > div {
+    border: 1px solid white;
+    text-align: center;
 }

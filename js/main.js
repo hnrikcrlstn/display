@@ -3,11 +3,13 @@ $(document).ready(function() {
     console.log('Script started');
     fetchTrain();
     fetchJoke();
+    fetchWeather();
 })
 
 $('#testBtn').on('click' , function() {
     fetchTrain();
     fetchJoke();
+    fetchWeather();
     console.log('Button pressed');
 });
 
@@ -17,7 +19,7 @@ function fetchTrain() {
     var trainApiKey = '50aff4a70a3749b1b0921745f8d2086d';
     let xmlRequest = "<REQUEST>" +
                         "<LOGIN authenticationkey='"+ trainApiKey + "'/>" +
-                        "<QUERY objecttype='TrainAnnouncement' schemaversion='1.8' orderby='AdvertisedTimeAtLocation' limit='15'>" +
+                        "<QUERY objecttype='TrainAnnouncement' schemaversion='1.8' orderby='AdvertisedTimeAtLocation' limit='150'>" +
                             "<FILTER>" +
                                 "<AND>" +
                                     "<EQ name='ActivityType' value='Avgang' />" +
@@ -25,7 +27,7 @@ function fetchTrain() {
                                     "<EQ name='LocationSignature' value='Upv' />" +
                                     "<EQ name='Advertised' value='true' />" +
                                         "<AND>" +
-                                                "<GT name='AdvertisedTimeAtLocation' value='$dateadd(-00:30:00)' />" +
+                                                "<GT name='AdvertisedTimeAtLocation' value='$dateadd(-0:30:00)' />" +
                                                 "<LT name='AdvertisedTimeAtLocation' value='$dateadd(02:00:00)' />" +
                                         "</AND>" +
                                 "</AND>" +
@@ -61,44 +63,44 @@ function fetchJoke() {
     var baseURL = "https://v2.jokeapi.dev";
     var categories = ["Programming", "Misc", "Pun"];
     var params = [
-        "blacklistFlags=nsfw,racist",
-        "idRange=0-100"
+        "blacklistFlags=nsfw,racist"
     ];
 
     var xhr = new XMLHttpRequest();
     xhr.open("GET", baseURL + "/joke/" + categories.join(",") + "?" + params.join("&"));
 
     xhr.onreadystatechange = function() {
-        if(xhr.readyState == 4 && xhr.status < 300) // readyState 4 means request has finished + we only want to parse the joke if the request was successful (status code lower than 300)
-        {
+        if(xhr.readyState == 4 && xhr.status < 300) { // readyState 4 means request has finished + we only want to parse the joke if the request was successful (status code lower than 300)
             var randomJoke = JSON.parse(xhr.responseText);
 
-            if(randomJoke.type == "single")
-            {
+            if(randomJoke.type == "single") {
                 displayJoke(true, randomJoke.joke, null);
-            }
-            else
-            {
+            } else {
                 displayJoke(false, randomJoke.setup, randomJoke.delivery);
             }
         }
-        else if(xhr.readyState == 4)
-        {
+        else if(xhr.readyState == 4) {
             displayJoke(true, "Error while requesting joke.\n\nStatus code: " + xhr.status + "\nServer response: " + xhr.responseText, null);
         }
     };
-
     xhr.send();
+}
 
-    console.log('POST Done'); /* *** */
-
+function fetchWeather() {
+    fetch('https://api.open-meteo.com/v1/forecast?latitude=59.5222&longitude=17.91&hourly=temperature_2m,apparent_temperature,rain,showers,snowfall,weathercode,cloudcover,windspeed_10m&daily=weathercode,temperature_2m_max,temperature_2m_min,apparent_temperature_max,apparent_temperature_min,rain_sum,snowfall_sum,windspeed_10m_max&current_weather=true&windspeed_unit=ms&forecast_days=2&timezone=Europe%2FBerlin', {
+        method: 'GET',
+        headers: {
+            'Accept': 'application/json',
+        },
+    })
+    .then(response => response.json())
+    .then(response => displayWeather(response));
 }
 
 function displayTrainInfo(data) {
     /*  Gather the next 15 departures
      *  Display the upcoming 4 departures
      *  Check for upcoming cancellations */
-    console.log('displayTrainInfo started'); /* *** */
 
     let timeNow = Date.now(); /* Still used? */
 
@@ -137,23 +139,22 @@ function displayTrainInfo(data) {
 
     /* Main loop of function, handle the stored train data one at a time */
     for (let i = 0; i < data.length; i++) {
+        let direction = northenStations.includes(data[i].ToLocation[0].LocationName);
+
         /* Checks for cancellations and delays, save train index for future handling */
         if (data[i].Deviation != null) {
-            if (data[i].Deviation.length == 1 && !unimportantMessages.includes(data[i].Deviation[0].Description)) {
+            if (data[i].Deviation.length == 1 && !unimportantMessages.includes(data[i].Deviation[0].Description) && (!direction || data[i].ToLocation[0].LocationName == 'U')) {
                 console.log('Error level 1, ' + data[i].Deviation[0]); /* *** */
                 errorArray.push(i);
             } else if (data[i].Deviation.length > 1) {
                 for (let n = 0; n < data[i].Deviation.length; n++) {
-                    if (!unimportantMessages.includes(data[i].Deviation[n].Description)) {
-                        console.log('Error level 2, ' + data[i].Deviation[n].Description); /* *** */
+                    if (!unimportantMessages.includes(data[i].Deviation[n].Description && (!direction || data[i].ToLocation[n].LocationName == 'U'))) {
                         errorArray.push(i);
-                        n = data[i].Deviation.length + 1;
+                        /* n = data[i].Deviation.length + 1; */ /* Why? */
                     }
                 }
             }
         }
-
-        let direction = northenStations.includes(data[i].ToLocation[0].LocationName);
 
         if ((data[i].ToLocation[0].LocationName == 'U' && north < 2) || (!direction && south < 4)) {
             let trainTime = new Date(data[i].AdvertisedTimeAtLocation);
@@ -188,7 +189,6 @@ function displayTrainInfo(data) {
 
                 let trainTimePrint;
                 if ((trainTimeEst > 0 && (Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1) == 0) || (trainTimeEst <= 0 && (Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1) == 0  )) {
-                    console.log('Nu');
                     trainTimePrint = 'Avgår nu';
                     $(trainContain + ' .trainTimeLabel').text('');
                 } else {
@@ -238,6 +238,50 @@ function displayJoke(single, joke, punch) {
         $('.joke-setup').show().text(joke);
         $('.joke-punch-line').text(punch);
     }
+}
+
+function displayWeather(weatherData) {
+    console.log(weatherData.daily); /* *** */
+
+    /* Current Weather */
+    $('.weather-1 .weather-temp .data').text(weatherData.current_weather.temperature);
+    $('.weather-1 .weather-wind .data').text(weatherData.current_weather.windspeed);
+    $('.weather-1 .weather-status .data').text(interpretWeatherCode(weatherData.current_weather.weathercode));
+
+/*     $('.weather-2 .weather-temp .data').text(weatherData.current_weather.temperature);
+    $('.weather-2 .weather-wind .data').text(weatherData.current_weather.windspeed);
+    $('.weather-2 .weather-status .data').text(interpretWeatherCode(weatherData.current_weather.weathercode));
+
+    $('.weather-3 .weather-temp .data').text(weatherData.current_weather.temperature);
+    $('.weather-3 .weather-wind .data').text(weatherData.current_weather.windspeed);
+    $('.weather-3 .weather-status .data').text(interpretWeatherCode(weatherData.current_weather.weathercode)); */
+
+    $('.weather-4 .weather-temp .data').text(weatherData.daily.temperature_2m_min[1] + ' - ' + weatherData.daily.temperature_2m_max[1]);
+    $('.weather-4 .weather-wind .data').text(weatherData.daily.windspeed_10m_max[1]);
+    $('.weather-4 .weather-status .data').text(interpretWeatherCode(weatherData.daily.weathercode[1]));
+}
+
+function interpretWeatherCode(code) {
+    /* Translates WMO weather code into readable weather conditions */
+    if (code == 0) {
+        return 'Molnfritt';
+    } else if (code > 1 && code < 4) {
+        return 'Molnigt';
+    } else if (code == 45 || code == 48) {
+        return 'Dimma';
+    } else if (code > 50 && code < 60) {
+        return 'Duggväder';
+    } else if (code > 60 && code < 70) {
+        return 'Regnväder';
+    }  else if (code > 70 && code < 80) {
+        return 'Snöar';
+    } else if (code > 80 && code < 90) {
+        return 'Spöregnar';
+    } else if (code > 94 && code < 100) {
+        return 'Åskoväder'
+    } else {
+        return 'Okänd kod: ' + code;
+    }    
 }
 
 function addZero(i) {
