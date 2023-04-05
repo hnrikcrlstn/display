@@ -1,18 +1,51 @@
+/*
+    *   Table of functions
+    *   Fetch functions:
+    *   fetchTrain() - API call for train info, return data as json
+    *   fetchWeather() - API call for weather info, return data as json
+    *   fetchJoke() - API call for jokes, return (bool_isOneLine, line_1, line_2/null)
+    * 
+    *   Display functions:
+    *   displayTrainInfo(trainData) - Interpret and prints train data in the train row
+    *   displayWeather(weatherData) - Interpret and print weather in the weather row
+    *   displayJoke(bool_singleLine, line_1, line_2/null)
+    *   displayDates() - Add current time and dates to date-row
+    * 
+    *   Helper functions:
+    *   displayError(trainData, message, time, north) - prints canceled departures or skipped stations in the train row
+    *   interpretWeatherCode(code) - Returns the WMO weather code as readable text
+    *   addZero(i) - Adds a leading 0 for time (hours or minutes) to allow HH:MM format for single digit hours or minutes
+    *   getWeekNumber(date) - Extract a dates week number
+*/
+
 $(document).ready(function() {
     $.support.cors = true;
-    console.log('Script started');
-    fetchTrain();
-    fetchJoke();
-    fetchWeather();
-})
 
-$('#testBtn').on('click' , function() {
-    fetchTrain();
-    fetchJoke();
-    fetchWeather();
-    console.log('Button pressed');
+    /* Initiation */
+    fetchTrain();       // 20 sec
+    fetchJoke();        // 5 min
+    fetchWeather();     // 1 hour
+    displayDates();     // 20 sec
+
+    let tick = 0;
+    setInterval(function timer() {
+        if (tick > 60*60) {
+            fetchWeather();
+            fetchJoke();
+            fetchTrain();
+            displayDates();
+            tick = 1;
+        } else if (tick % (5*60) == 0) {
+            fetchJoke();
+            fetchTrain();
+            displayDates();
+        } else if (tick % 20 == 0) {
+            fetchTrain();
+            displayDates();
+        }
+        tick++;
+    }, 1000);
 });
-
 
 function fetchTrain() {
     var trainApiUrl = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
@@ -102,8 +135,6 @@ function displayTrainInfo(data) {
      *  Display the upcoming 4 departures
      *  Check for upcoming cancellations */
 
-    let timeNow = Date.now(); /* Still used? */
-
     /* Reset old data */
     $('.trainDep').removeClass('delay');
     $('.trainDepNew').hide();
@@ -128,8 +159,6 @@ function displayTrainInfo(data) {
     /* Array with station id for northen stations, to deduce travel orientation */
     const northenStations = ['U', 'Mr', 'Arnc', 'Kn', 'Rs'];
     
-    console.log(data); /* *** */
-    
     /* If there is a canceled departure, store the index in a new array for future handling */
     let errorArray = [];
     
@@ -144,13 +173,12 @@ function displayTrainInfo(data) {
         /* Checks for cancellations and delays, save train index for future handling */
         if (data[i].Deviation != null) {
             if (data[i].Deviation.length == 1 && !unimportantMessages.includes(data[i].Deviation[0].Description) && (!direction || data[i].ToLocation[0].LocationName == 'U')) {
-                console.log('Error level 1, ' + data[i].Deviation[0]); /* *** */
                 errorArray.push(i);
             } else if (data[i].Deviation.length > 1) {
                 for (let n = 0; n < data[i].Deviation.length; n++) {
                     if (!unimportantMessages.includes(data[i].Deviation[n].Description && (!direction || data[i].ToLocation[n].LocationName == 'U'))) {
                         errorArray.push(i);
-                        /* n = data[i].Deviation.length + 1; */ /* Why? */
+                        n = data[i].Deviation.length + 1; 
                     }
                 }
             }
@@ -192,7 +220,7 @@ function displayTrainInfo(data) {
                     trainTimePrint = 'Avgår nu';
                     $(trainContain + ' .trainTimeLabel').text('');
                 } else {
-                    trainTimePrint = Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
+                    trainTimePrint = Math.ceil(((trainTimeEst > 0 ? trainTimeEst : trainTime) - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
                 }
 
                 $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
@@ -214,8 +242,6 @@ function displayTrainInfo(data) {
         }
     }
     
-    console.log('Script finished'); /* *** */
-
     if (errorArray.length > 0) {
         $('.train-label-error, .train-error-no-error').removeClass('train-error-no-error');
         for (let i = 0; i < errorArray.length; i++) {
@@ -241,33 +267,55 @@ function displayJoke(single, joke, punch) {
 }
 
 function displayWeather(weatherData) {
-    console.log(weatherData.daily); /* *** */
+    let now = new Date();
+    let future3h = now.getHours() + 3;
+    let future9h = now.getHours() + 9;
+    $('.weather-icon-img').show();
 
-    /* Current Weather */
+    $('.weather-1 .weather-icon img').attr('src', weatherImg(weatherData.current_weather.weathercode));
     $('.weather-1 .weather-temp .data').text(weatherData.current_weather.temperature);
     $('.weather-1 .weather-wind .data').text(weatherData.current_weather.windspeed);
     $('.weather-1 .weather-status .data').text(interpretWeatherCode(weatherData.current_weather.weathercode));
 
-/*     $('.weather-2 .weather-temp .data').text(weatherData.current_weather.temperature);
-    $('.weather-2 .weather-wind .data').text(weatherData.current_weather.windspeed);
-    $('.weather-2 .weather-status .data').text(interpretWeatherCode(weatherData.current_weather.weathercode));
+    $('.weather-2 .weather-icon img').attr('src', weatherImg(weatherData.hourly.weathercode[future3h]));
+    $('.weather-2 .weather-temp .data').text(weatherData.hourly.temperature_2m[future3h]);
+    $('.weather-2 .weather-wind .data').text(weatherData.hourly.windspeed_10m[future3h]);
+    $('.weather-2 .weather-status .data').text(interpretWeatherCode(weatherData.hourly.weathercode[future3h]));
 
-    $('.weather-3 .weather-temp .data').text(weatherData.current_weather.temperature);
-    $('.weather-3 .weather-wind .data').text(weatherData.current_weather.windspeed);
-    $('.weather-3 .weather-status .data').text(interpretWeatherCode(weatherData.current_weather.weathercode)); */
+    $('.weather-3 .weather-icon img').attr('src', weatherImg(weatherData.hourly.weathercode[future9h]));
+    $('.weather-3 .weather-temp .data').text(weatherData.hourly.temperature_2m[future9h]);
+    $('.weather-3 .weather-wind .data').text(weatherData.hourly.windspeed_10m[future9h]);
+    $('.weather-3 .weather-status .data').text(interpretWeatherCode(weatherData.hourly.weathercode[future9h]));
 
+    $('.weather-4 .weather-icon img').attr('src', weatherImg(weatherData.daily.weathercode[1]));
     $('.weather-4 .weather-temp .data').text(weatherData.daily.temperature_2m_min[1] + ' - ' + weatherData.daily.temperature_2m_max[1]);
     $('.weather-4 .weather-wind .data').text(weatherData.daily.windspeed_10m_max[1]);
     $('.weather-4 .weather-status .data').text(interpretWeatherCode(weatherData.daily.weathercode[1]));
+
+    /* Error handling, hide images not updated */
+    $('.weather-icon-img').each(function() {
+        if ($(this).attr('src') == '#') {
+            $(this).hide();
+        }
+    })
+}
+
+function displayDates() {
+    let now = new Date();
+
+    $('.date-row .date').text(now.getDate() + '/' + now.getMonth());
+    $('.date-row .time').text(addZero(now.getHours()) + ':' + addZero(now.getMinutes()));
+    $('.date-row .weekNo').text(getWeekNumber(now));
+
 }
 
 function interpretWeatherCode(code) {
     /* Translates WMO weather code into readable weather conditions */
     if (code == 0) {
         return 'Molnfritt';
-    } else if (code > 1 && code < 4) {
+    } else if (code > 1 && code < 10) {
         return 'Molnigt';
-    } else if (code == 45 || code == 48) {
+    } else if (code > 40 && code < 50) {
         return 'Dimma';
     } else if (code > 50 && code < 60) {
         return 'Duggväder';
@@ -284,8 +332,61 @@ function interpretWeatherCode(code) {
     }    
 }
 
+function weatherImg(code) {
+    if (code == 0) {
+        return '/img/clear-day.svg';
+    } else if (code == 1) {
+        return '/img/cloudy-1-day.svg';
+    } else if (code == 2) {
+        return '/img/cloudy-2-day.svg';
+    } else if (code == 3) {
+        return '/img/cloudy-3-day.svg';
+    } else if (code > 40 && code < 50) {
+        return '/img/fog.svg';
+    } else if (code > 50 && code < 60) {
+        return '/img/haze.svg';
+    } else if (code == 61) {
+        return '/img/rainy-1.svg';
+    } else if (code == 63) {
+        return '/img/rainy-2.svg';
+    } else if (code == 65) {
+        return '/img/rainy-3.svg';
+    } else if (code == 66 || code == 67 || code == 85 || code == 86) {
+        return '/img/snow-and-snow-mix.svg';
+    } else if (code == 71) {
+        return '/img/snowy-1.svg';
+    } else if (code == 73) {
+        return '/img/snowy-2.svg';
+    } else if (code == 75) {
+        return '/img/snow-3.svg';
+    } else if (code == 77) {
+        return '/img/hail.svg';
+    } else if (code == 80) {
+        return '/img/rain-1.svg';
+    } else if (code == 81) {
+        return '/img/rain-2.svg';
+    } else if (code == 82) {
+        return '/img/rain-3.svg';
+    } else if (code == 95 || code == 96 || code == 99) {
+        return '/img/thunderstorms.svg';
+    } else {
+        return '#';
+    }    
+}
+
+function getWeekNumber(date) {
+    date.setHours(0, 0, 0, 0);
+    // Thursday in current week decides the year.
+    date.setDate(date.getDate() + 3 - (date.getDay() + 6) % 7);
+    // January 4 is always in week 1.
+    var week1 = new Date(date.getFullYear(), 0, 4);
+    // Adjust to Thursday in week 1 and count number of weeks from date to week1.
+    return 1 + Math.round(((date.getTime() - week1.getTime()) / 86400000
+           - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+
 function addZero(i) {
-    /* Used to format time in XX:YY-format */
+    /* Used to format time in hh:mm-format */
     if (i < 10) {
         i = '0' + i;
     }

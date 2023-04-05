@@ -6,13 +6,29 @@ body {
     font-family: 'Nunito', sans-serif;
 }
 
+.smaller {
+    font-size: 0.7em;
+}
+
+.date-row .time {
+    font-size: 2em;
+    font-weight: bold;
+}
+
 .main-container {
     margin: 1em;
     height: calc(100vh - 2em);
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 2fr 1fr 5em;
+    grid-template-rows: 4em 1fr 1fr 8em 1fr;
     grid-gap: 2em;
+}
+
+.date-row {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    font-size: 2em;
 }
 
 .train {
@@ -199,16 +215,34 @@ h3.train-direction-header {
 .weather-col {
     display: grid;
     justify-content: center;
-    grid-template-rows: repeat(4, 1fr) 2rem;
+    grid-template-rows: 2fr 1fr 1fr 1fr 2.5rem;
     height: 100%;
-    border: 1px solid orange;
 }
 
-.weather-col .weather-label {
+.weather-col {
     font-size: 1.5rem;
 }
 
+.weather-col .weather-label {
+    font-size: 1.25em;
+}
+
+/* .weather-col .weather-icon {
+    background-position: center center;
+    background-size: ;
+    background-repeat: no-repeat;
+} */
+
+.weather-icon-img {
+    height: 100%;
+}
+
 .weather-col > div {
-    border: 1px solid white;
     text-align: center;
+}
+
+.joke-row {
+    font-size: 1.5rem;
+    margin-left: 1em;
+    align-self: flex-end;
 }
