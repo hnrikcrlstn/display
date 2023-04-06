@@ -95,7 +95,7 @@ h3.train-direction-header {
 }
 
 .train-data {
-    font-size: clamp(1rem, 2rem, 2.5rem); 
+    font-size: 2rem;
     text-align: center;
 }
 
