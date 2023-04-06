@@ -27,9 +27,10 @@ $(document).ready(function() {
     fetchWeather();     // 1 hour
     displayDates();     // 20 sec
 
-    let tick = 0;
+    let tick = 0;       // 1 tick == 1 sec
     setInterval(function timer() {
-        if (tick > 60*60) {
+        // Hourly updates also resets tick count
+        if (tick > 60*60 ) {
             fetchWeather();
             fetchJoke();
             fetchTrain();
@@ -48,10 +49,8 @@ $(document).ready(function() {
 });
 
 function fetchTrain() {
-    var trainApiUrl = 'https://api.trafikinfo.trafikverket.se/v2/data.json';
-    var trainApiKey = '50aff4a70a3749b1b0921745f8d2086d';
     let xmlRequest = "<REQUEST>" +
-                        "<LOGIN authenticationkey='"+ trainApiKey + "'/>" +
+                        "<LOGIN authenticationkey='50aff4a70a3749b1b0921745f8d2086d'/>" +
                         "<QUERY objecttype='TrainAnnouncement' schemaversion='1.8' orderby='AdvertisedTimeAtLocation' limit='150'>" +
                             "<FILTER>" +
                                 "<AND>" +
@@ -66,14 +65,10 @@ function fetchTrain() {
                                 "</AND>" +
                             "</FILTER>" +
                             "<INCLUDE>ProductInformation</INCLUDE>" +
-                            "<INCLUDE>ScheduledDepartureDateTime</INCLUDE>" +
                             "<INCLUDE>EstimatedTimeAtLocation</INCLUDE>" +
                             "<INCLUDE>TimeAtLocation</INCLUDE>" +
                             "<INCLUDE>AdvertisedTimeAtLocation</INCLUDE>" +
                             "<INCLUDE>ToLocation</INCLUDE>" +
-                            "<INCLUDE>LocationSignature</INCLUDE>" +
-                            "<INCLUDE>TrackAtLocation</INCLUDE>" +
-                            "<INCLUDE>PlannedEstimatedTimeAtLocation</INCLUDE>" +
                             "<INCLUDE>OtherInformation</INCLUDE>" +
                             "<INCLUDE>Canceled</INCLUDE>" +
                             "<INCLUDE>Deviation</INCLUDE>" +
@@ -81,7 +76,7 @@ function fetchTrain() {
                     "</REQUEST>";
     $.ajax({
         type: "POST",
-        url: trainApiUrl,
+        url: 'https://api.trafikinfo.trafikverket.se/v2/data.json',
         contentType: "text/xml",
         dataType: "json",
         data: xmlRequest,
@@ -103,7 +98,8 @@ function fetchJoke() {
     xhr.open("GET", baseURL + "/joke/" + categories.join(",") + "?" + params.join("&"));
 
     xhr.onreadystatechange = function() {
-        if(xhr.readyState == 4 && xhr.status < 300) { // readyState 4 means request has finished + we only want to parse the joke if the request was successful (status code lower than 300)
+        // readyState 4 means request has finished + we only want to parse the joke if the request was successful (status code lower than 300)
+        if(xhr.readyState == 4 && xhr.status < 300) {
             var randomJoke = JSON.parse(xhr.responseText);
 
             if(randomJoke.type == "single") {
