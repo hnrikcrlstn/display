@@ -214,6 +214,7 @@ function displayTrainInfo(data) {
             if (relevant) {
                 if (data[i].Canceled) {
                     $(trainContain).addClass('canceled');
+                    $(trainContain + ' .trainTime').text('Inställt');
                 }
 
                 let trainTimePrint;

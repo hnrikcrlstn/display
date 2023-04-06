@@ -16,11 +16,10 @@ body {
 }
 
 .main-container {
-    margin: 1em;
-    height: calc(100vh - 2em);
+    height: calc(100vmin - 2rem);
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: 4em 1fr 1fr 8em 1fr;
+    grid-template-rows: 4rem 1fr 1fr 8rem;
     grid-gap: 2em;
 }
 
@@ -94,17 +93,14 @@ h3.train-direction-header {
     margin: 0 1rem;
   /*   border: 2px solid white; */
 }
+
 .train-data {
     font-size: clamp(1rem, 2rem, 2.5rem); 
     text-align: center;
 }
 
-.canceled .train-data {
+.canceled .train-data, .canceled .train-label {
     text-decoration: line-through;
-}
-
-.canceled .train-time-unit {
-    display: none;
 }
 
 .train-label {
@@ -159,8 +155,6 @@ h3.train-direction-header {
     display: grid;
     grid-template-rows: max-content 4rem;
 }
-
-
 
 .delay {
     text-decoration:line-through;
@@ -220,18 +214,12 @@ h3.train-direction-header {
 }
 
 .weather-col {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
 }
 
 .weather-col .weather-label {
     font-size: 1.25em;
 }
-
-/* .weather-col .weather-icon {
-    background-position: center center;
-    background-size: ;
-    background-repeat: no-repeat;
-} */
 
 .weather-icon-img {
     height: 100%;
@@ -242,7 +230,7 @@ h3.train-direction-header {
 }
 
 .joke-row {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
     margin-left: 1em;
     align-self: flex-end;
 }
