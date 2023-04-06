@@ -137,6 +137,7 @@ function displayTrainInfo(data) {
 
     /* Reset old data */
     $('.trainDep').removeClass('delay');
+    $('.train-seg').removeClass('canceled');
     $('.trainDepNew').hide();
     $('.train-error').addClass('train-error-no-error');
     $('.train-error-output').html('');
