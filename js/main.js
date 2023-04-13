@@ -135,7 +135,7 @@ function displayTrainInfo(data) {
     $('.trainDep').removeClass('delay');
     $('.train-seg').removeClass('canceled');
     $('.trainDepNew').hide();
-    $('.train-error').addClass('train-error-no-error');
+    $('.train-label-error').addClass('train-error-no-error');
     $('.train-error-output').html('');
     $('.trainTimeLabel').text('Tid kvar');
 
@@ -208,11 +208,6 @@ function displayTrainInfo(data) {
             }
 
             if (relevant) {
-                if (data[i].Canceled) {
-                    $(trainContain).addClass('canceled');
-                    $(trainContain + ' .trainTime').text('Inställt');
-                }
-
                 let trainTimePrint;
                 if ((trainTimeEst > 0 && (Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1) == 0) || (trainTimeEst <= 0 && (Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1) == 0  )) {
                     trainTimePrint = 'Avgår nu';
@@ -221,9 +216,13 @@ function displayTrainInfo(data) {
                     trainTimePrint = Math.ceil(((trainTimeEst > 0 ? trainTimeEst : trainTime) - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
                 }
 
-                $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
-                $(trainContain + ' .trainTime').html((trainTimePrint));
-
+                if (data[i].Canceled) {
+                    $(trainContain).addClass('canceled');
+                    $(trainContain + ' .trainTime').text('Inställt');
+                } else {
+                    $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
+                    $(trainContain + ' .trainTime').html((trainTimePrint));
+                }
                 /* If time as been changed, notify */
                 if (trainTimeEst &&  (Math.round(trainTimeEst - trainTime) / 500 / 60) > 1) {
                     $(trainContain + ' .trainDep').addClass('delay');
@@ -241,7 +240,7 @@ function displayTrainInfo(data) {
     }
     
     if (errorArray.length > 0) {
-        $('.train-label-error, .train-error-no-error').removeClass('train-error-no-error');
+        $('.train-label-error').removeClass('train-error-no-error');
         for (let i = 0; i < errorArray.length; i++) {
             displayError(data[errorArray[i]].ProductInformation[1].Description, data[errorArray[i]].Deviation[0].Description, data[errorArray[i]].AdvertisedTimeAtLocation, northenStations.includes(data[errorArray[i]].ToLocation[0].LocationName));
         }
