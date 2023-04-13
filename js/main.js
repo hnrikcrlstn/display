@@ -21,7 +21,7 @@
 $(document).ready(function() {
     $.support.cors = true;
 
-    /* Initiation */
+    /* Initiation, fetch data from each part of the display */
     fetchTrain();       // 20 sec
     fetchJoke();        // 5 min
     fetchWeather();     // 1 hour
@@ -48,6 +48,10 @@ $(document).ready(function() {
     }, 1000);
 });
 
+/*  
+    API call to fetch trian data from Trafikverket
+    Fetches 30 min retroactivle to display recent canelations, and up to 8 hours from now to display future cancelations 
+*/
 function fetchTrain() {
     let xmlRequest = "<REQUEST>" +
                         "<LOGIN authenticationkey='50aff4a70a3749b1b0921745f8d2086d'/>" +
@@ -60,7 +64,7 @@ function fetchTrain() {
                                     "<EQ name='Advertised' value='true' />" +
                                         "<AND>" +
                                                 "<GT name='AdvertisedTimeAtLocation' value='$dateadd(-0:30:00)' />" +
-                                                "<LT name='AdvertisedTimeAtLocation' value='$dateadd(02:00:00)' />" +
+                                                "<LT name='AdvertisedTimeAtLocation' value='$dateadd(08:00:00)' />" +
                                         "</AND>" +
                                 "</AND>" +
                             "</FILTER>" +
@@ -101,7 +105,7 @@ function fetchJoke() {
         // readyState 4 means request has finished + we only want to parse the joke if the request was successful (status code lower than 300)
         if(xhr.readyState == 4 && xhr.status < 300) {
             var randomJoke = JSON.parse(xhr.responseText);
-
+            /* Since jokes are either single line or dual line, displayJoke handeles each type different to be able to add a row break if needed */
             if(randomJoke.type == "single") {
                 displayJoke(true, randomJoke.joke, null);
             } else {
@@ -127,9 +131,6 @@ function fetchWeather() {
 }
 
 function displayTrainInfo(data) {
-    /*  Gather the next 15 departures
-     *  Display the upcoming 4 departures
-     *  Check for upcoming cancellations */
 
     /* Reset old data */
     $('.trainDep').removeClass('delay');
@@ -138,6 +139,13 @@ function displayTrainInfo(data) {
     $('.train-label-error').addClass('train-error-no-error');
     $('.train-error-output').html('');
     $('.trainTimeLabel').text('Tid kvar');
+    
+    /* If there is a canceled departure, store the index in a new array for future handling */
+    let errorArray = [];
+
+    /* Save number of north and south heading departures */
+    let north = 0;
+    let south = 0;
 
     /* OtherInformations and Deviations to ignore by error handler */
     const unimportantMessages = [
@@ -156,13 +164,6 @@ function displayTrainInfo(data) {
     /* Array with station id for northen stations, to deduce travel orientation */
     const northenStations = ['U', 'Mr', 'Arnc', 'Kn', 'Rs'];
     
-    /* If there is a canceled departure, store the index in a new array for future handling */
-    let errorArray = [];
-    
-    /* Save number of north and south heading departures */
-    let north = 0;
-    let south = 0;
-
     /* Main loop of function, handle the stored train data one at a time */
     for (let i = 0; i < data.length; i++) {
         let direction = northenStations.includes(data[i].ToLocation[0].LocationName);
@@ -181,6 +182,7 @@ function displayTrainInfo(data) {
             }
         }
 
+        /* Only proceed with current departure if there's room to display the train */
         if ((data[i].ToLocation[0].LocationName == 'U' && north < 2) || (!direction && south < 4)) {
             let trainTime = new Date(data[i].AdvertisedTimeAtLocation);
             let trainTimeEst;
@@ -207,8 +209,10 @@ function displayTrainInfo(data) {
                 relevant = true;
             }
 
+            /* If current train departure are irrelevant, ignore it */
             if (relevant) {
                 let trainTimePrint;
+                /* Instead of 0 min remaining, print Avgår nu */
                 if ((trainTimeEst > 0 && (Math.ceil((trainTimeEst - Date.now()) / 1000 / 60) - 1) == 0) || (trainTimeEst <= 0 && (Math.ceil((trainTime - Date.now()) / 1000 / 60) - 1) == 0  )) {
                     trainTimePrint = 'Avgår nu';
                     $(trainContain + ' .trainTimeLabel').text('');
@@ -216,10 +220,12 @@ function displayTrainInfo(data) {
                     trainTimePrint = Math.ceil(((trainTimeEst > 0 ? trainTimeEst : trainTime) - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
                 }
 
+                /* Styling of canceled trians */
                 if (data[i].Canceled) {
                     $(trainContain).addClass('canceled');
                     $(trainContain + ' .trainTime').text('Inställt');
                 } else {
+                    /* Styling of remaining time to departure */
                     $(trainContain + ' .trainDep').text(addZero(trainTime.getHours()) + ':' + addZero(trainTime.getMinutes()));
                     $(trainContain + ' .trainTime').html((trainTimePrint));
                 }
@@ -239,6 +245,7 @@ function displayTrainInfo(data) {
         }
     }
     
+    /* Check if there's any errors to display */
     if (errorArray.length > 0) {
         $('.train-label-error').removeClass('train-error-no-error');
         for (let i = 0; i < errorArray.length; i++) {
@@ -247,6 +254,7 @@ function displayTrainInfo(data) {
     }
 }
 
+/* Helper function for formatting and displaying cancelations */
 function displayError(trainData, message, time, north) {
     let tempTime = new Date(time);
     let formatedTime = addZero(tempTime.getHours()) + ':' + addZero(tempTime.getMinutes());
@@ -306,8 +314,8 @@ function displayDates() {
 
 }
 
+/* Translates WMO weather code into readable weather conditions */
 function interpretWeatherCode(code) {
-    /* Translates WMO weather code into readable weather conditions */
     if (code == 0) {
         return 'Molnfritt';
     } else if (code > 1 && code < 10) {
@@ -329,6 +337,7 @@ function interpretWeatherCode(code) {
     }    
 }
 
+/* Translate WMO weather code into path to relevant weather icons */
 function weatherImg(code) {
     if (code == 0) {
         return '/img/clear-day.svg';
@@ -382,8 +391,8 @@ function getWeekNumber(date) {
            - 3 + (week1.getDay() + 6) % 7) / 7);
 }
 
+/* Used to format time in hh:mm-format */
 function addZero(i) {
-    /* Used to format time in hh:mm-format */
     if (i < 10) {
         i = '0' + i;
     }
