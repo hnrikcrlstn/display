@@ -3,7 +3,7 @@
     *   Fetch functions:
     *   fetchTrain() - API call for train info, return data as json
     *   fetchWeather() - API call for weather info, return data as json
-    *   fetchJoke() - API call for jokes, return (bool_isOneLine, line_1, line_2/null)
+    *   fetchJoke() - API call for jokes, return (bool_isOneLine, str line_1, str line_2/null)
     * 
     *   Display functions:
     *   displayTrainInfo(trainData) - Interpret and prints train data in the train row
@@ -23,9 +23,9 @@ $(document).ready(function() {
 
     /* Initiation, fetch data from each part of the display */
     fetchTrain();       // 20 sec
+    displayDates();     // 20 sec
     fetchJoke();        // 5 min
     fetchWeather();     // 1 hour
-    displayDates();     // 20 sec
 
     let tick = 0;       // 1 tick == 1 sec
     setInterval(function timer() {
@@ -50,7 +50,7 @@ $(document).ready(function() {
 
 /*  
     API call to fetch trian data from Trafikverket
-    Fetches 30 min retroactivle to display recent canelations, and up to 8 hours from now to display future cancelations 
+    Fetches 30 min retroactively to display recent canelations, and up to 8 hours from now to display future cancelations 
 */
 function fetchTrain() {
     let xmlRequest = "<REQUEST>" +
@@ -217,7 +217,7 @@ function displayTrainInfo(data) {
                     trainTimePrint = 'Avgår nu';
                     $(trainContain + ' .trainTimeLabel').text('');
                 } else {
-                    trainTimePrint = Math.ceil(((trainTimeEst > 0 ? trainTimeEst : trainTime) - Date.now()) / 1000 / 60) - 1 + ' <span class="train-time-unit">min</span>';
+                    trainTimePrint = Math.ceil(((trainTimeEst > 0 ? trainTimeEst : trainTime) - Date.now()) / 1000 / 60)  + ' <span class="train-time-unit">min</span>';
                 }
 
                 /* Styling of canceled trians */
@@ -308,7 +308,7 @@ function displayWeather(weatherData) {
 function displayDates() {
     let now = new Date();
 
-    $('.date-row .date').text(now.getDate() + '/' + now.getMonth());
+    $('.date-row .date').text(now.getDate() + ' / ' + (now.getMonth() + 1));
     $('.date-row .time').text(addZero(now.getHours()) + ':' + addZero(now.getMinutes()));
     $('.date-row .weekNo').text(getWeekNumber(now));
 
