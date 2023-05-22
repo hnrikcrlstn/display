@@ -318,7 +318,7 @@ function displayDates() {
 function interpretWeatherCode(code) {
     if (code == 0) {
         return 'Molnfritt';
-    } else if (code > 1 && code < 10) {
+    } else if (code > 0 && code < 10) {
         return 'Molnigt';
     } else if (code > 40 && code < 50) {
         return 'Dimma';
