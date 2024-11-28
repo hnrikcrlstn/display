@@ -114,12 +114,6 @@ h3.train-direction-header {
     flex-direction: column;
 }
 
-.train-label-row {
-    display: grid;
-    grid-template-columns: 2fr 1fr 1fr;
-    text-align: center;
-}
-
 .button {
     display: inline-block;
     padding: 0.5em 0.75em;
@@ -232,4 +226,42 @@ h3.train-direction-header {
     font-size: 1.25rem;
     margin-left: 1em;
     align-self: flex-end;
+}
+
+@media screen and (max-width: 768px) {
+    .date-row {
+        width: 100%;
+    }
+    .date-row .date,
+    .date-row .week {
+        font-size: 0.75em;
+    }
+    .date-row .time {
+        font-size: 1.75em;
+    }
+    .trainTime {
+        font-size: 1.75rem;
+    }
+
+    .train-label-south {
+        grid-column: 1/3;
+    }
+
+    .train-label {
+        text-align: center;
+    }
+
+    .weather-row {
+        max-width: 90vw;
+    }
+
+    .weather-row div {
+        font-size: 1em;
+    }
+
+    .joke-row {
+        width: fit-content;
+        max-width: 100%;
+        margin: 0 20px;
+    }
 }
