@@ -228,7 +228,7 @@ h3.train-direction-header {
     align-self: flex-end;
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 900px) {
     .date-row {
         width: 100%;
     }
@@ -262,6 +262,20 @@ h3.train-direction-header {
     .joke-row {
         width: fit-content;
         max-width: 100%;
-        margin: 0 20px;
+        margin-right: 20px;
+        margin-left: 20px;
+    }
+}
+
+@media screen and (max-width:768px) {
+    .date-row .date,
+    .date-row .week {
+        font-size: 0.5em;
+    }
+    .date-row .time {
+        font-size: 1.5em;
+    }
+    .trainTime {
+        font-size: 1.5rem;
     }
 }
