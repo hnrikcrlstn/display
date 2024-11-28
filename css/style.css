@@ -51,10 +51,6 @@ h3.train-direction-header {
     text-align: center;
 }
 
-.train-seg {
-    flex-direction: column;
-}
-
 .row, .row>* {
     display: flex;
     flex-wrap: nowrap;
@@ -87,10 +83,15 @@ h3.train-direction-header {
 .train .train-vasby .train-seg {
     display: grid;
     grid-template-columns: 100%;
-    grid-template-rows: 6rem 1.5rem 4rem 1.5rem;
     align-items: end;
     justify-items: center;
     margin: 0 1rem;
+}
+
+.train .train-seg {
+    grid-template-rows: minmax(100px, 1fr) repeat(3, auto);
+    gap: 15px;
+    flex-direction: column;
 }
 
 .train-data {
@@ -230,14 +231,22 @@ h3.train-direction-header {
 
 @media screen and (max-width: 900px) {
     .main-container {
-        gap: 0;
+        gap: 10px;
+        grid-template-rows: auto 1fr 11rem auto;
+        height: auto;
     }
+
     .date-row {
         width: 100%;
     }
     .date-row .date,
     .date-row .week {
-        font-size: 0.75em;
+        font-size: 1em;
+    }
+    .date-row .week {
+        flex-direction: column-reverse;
+        display: flex;
+        text-align: center;
     }
     .date-row .time {
         font-size: 1.75em;
@@ -258,6 +267,9 @@ h3.train-direction-header {
         max-width: 90vw;
     }
 
+    .weather-icon {
+        max-height: 50px;
+    }
     .weather-row div {
         font-size: 1em;
     }
@@ -273,7 +285,7 @@ h3.train-direction-header {
 @media screen and (max-width:768px) {
     .date-row .date,
     .date-row .week {
-        font-size: 0.5em;
+        font-size: 0.75em;
     }
     .date-row .time {
         font-size: 1.5em;
